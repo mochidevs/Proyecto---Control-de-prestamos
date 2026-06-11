@@ -91,6 +91,89 @@ public class Controladora {
     
     // Items
     
+    public void crearItem(String nombre, String descripcion, int idTipo) {
+    	TipoItem tipo = tipos.get(idTipo);
+    	if (tipo != null) {
+    		Item item = new Item( nombre, consecutivoItem++, descripcion, tipo);
+    		items.put(item.getCodigo(), item);
+    	}
+    }
     
+    public void actualizarItem(int codigo, String nombre, String descripcion, int idTipo) {
+        Item item = items.get(codigo);
+        TipoItem tipo = tipos.get(idTipo);
+        if (item != null && tipo != null) {
+            item.setNombre(nombre);
+            item.setDescripcion(descripcion);
+            item.setTipo(tipo);
+        }
+    }
+    
+    public void borrarItem(int codigo) {
+        Item item = items.get(codigo);
+        if (item != null && !item.isPrestado()) {
+            items.remove(codigo);
+        }
+    }
+    
+    public Item obtenerItem(int codigo) {
+        return items.get(codigo);
+    }
+    
+    public List<Item> obtenerListadoItems() {
+        return new ArrayList<>(items.values());
+    }
+
+    public List<Item> obtenerListadoItemsDisponibles() {
+        List<Item> disponibles = new ArrayList<>();
+        for (Item item : items.values()) {
+            if (!item.isPrestado()) 
+            	disponibles.add(item);
+        }
+        return disponibles;
+    }
+    
+    public boolean itemEstaPrestado(int codigo) {
+        Item item = items.get(codigo);
+        return item != null && item.isPrestado();
+    }
+    
+    public void agregarCategoriaAItem(int codigoItem, int idCategoria) {
+        Item item = items.get(codigoItem);
+        Categoria categoria = categorias.get(idCategoria);
+        if (item != null && categoria != null) {
+            item.agregarCategoria(categoria);
+        }
+    }
+    
+    public void eliminarCategoriaDeItem(int codigoItem, int idCategoria) {
+        Item item = items.get(codigoItem);
+        Categoria categoria = categorias.get(idCategoria);
+        if (item != null && categoria != null) {
+            item.eliminarCategoria(categoria);
+        }
+    }
+    
+    public List<Item> obtenerItemsPorCategoria(int idCategoria) {
+        Categoria categoria = categorias.get(idCategoria);
+        List<Item> resultado = new ArrayList<>();
+        if (categoria != null) {
+            for (Item item : items.values()) {
+                if (item.perteneceACategoria(categoria)) 
+                	resultado.add(item);
+            }
+        }
+        return resultado;
+    }
+
+    public List<Item> obtenerItemsPorTipo(int idTipo) {
+        List<Item> resultado = new ArrayList<>();
+        for (Item item : items.values()) {
+        	TipoItem tipo = item.getTipo();
+            if (tipo.getId() == idTipo) 
+            	resultado.add(item);
+        }
+        return resultado;
+    }
     
 }
