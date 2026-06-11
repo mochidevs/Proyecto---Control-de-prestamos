@@ -4,16 +4,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Usuario {
+	private int numero;
 	private String nombre;
 	private String telefono;
 	private String email;
 	private List<Prestamo> prestamos;
 	
-	public Usuario(String nombre, String telefono, String email) {
+	public Usuario(int numero, String nombre, String telefono, String email) {
+		this.numero = numero;
 		this.nombre = nombre;
 		this.telefono = telefono;
 		this.email = email;
 		this.prestamos = new ArrayList<>();
+	}
+	
+	public int getNumero() {
+		return numero;
 	}
 
 	public String getNombre() {
