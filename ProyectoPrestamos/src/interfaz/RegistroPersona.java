@@ -27,6 +27,8 @@ public class RegistroPersona extends JDialog {
 	private Usuario personaEdit;
 
 	public RegistroPersona() {
+		setModal(true);
+		setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 		setTitle("Nueva persona");
 		setBounds(100, 100, 283, 236);
 		getContentPane().setLayout(new BorderLayout());
