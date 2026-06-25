@@ -1,17 +1,26 @@
 package logica;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Categoria {
 	private int id;
     private String nombre;
     private String descripcion;
+    private List<Item> items;
 
     public Categoria(int id, String nombre, String descripcion) {
         this.id = id;
         this.nombre = nombre;
         this.descripcion = descripcion;
+        this.items = new ArrayList<>();
     }
 
-	public String getNombre() {
+    public int getId() {
+    	return id;
+    }
+
+    public String getNombre() {
 		return nombre;
 	}
 
@@ -27,9 +36,16 @@ public class Categoria {
 		this.descripcion = descripcion;
 	}
 
-	public int getId() {
-		return id;
+	public List<Item> getItems() {
+		return items;
 	}
+
+    public void agregarItem(Item item) {
+    	items.add(item);
+    }
     
+    public void eliminarItem(Item item) {
+    	items.remove(item);
+    }
     
 }

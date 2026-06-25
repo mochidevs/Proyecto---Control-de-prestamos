@@ -1,19 +1,28 @@
 package logica;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class TipoItem {
 	private int id;
     private String nombre;
     private String descripcion;
     private boolean generico;
+    private List<Item> items;
     
     public TipoItem(int id, String nombre, String descripcion, boolean generico) {
     	this.id = id;
         this.nombre = nombre;
         this.descripcion = descripcion;
         this.generico = generico;
+        this.items = new ArrayList<>();
     }
 
-	public String getNombre() {
+    public int getId() {
+    	return id;
+    }
+
+    public String getNombre() {
 		return nombre;
 	}
 
@@ -29,14 +38,23 @@ public class TipoItem {
 		this.descripcion = descripcion;
 	}
 
-	public int getId() {
-		return id;
-	}
-
 	public boolean isGenerico() {
 		return generico;
 	}
+
+	public List<Item> getItems() {
+		return items;
+	}
     
+	public void agregarItem(Item item) {
+    	items.add(item);
+    }
     
+    public void eliminarItem(Item item) {
+    	items.remove(item);
+    }
     
+    public String toString() {
+    	return nombre;
+    }
 }

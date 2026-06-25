@@ -162,6 +162,7 @@ public class Controladora {
         
     	TipoItem tipo = tipos.get(idTipo);
 		Item item = new Item( nombre, consecutivoItem++, descripcion, tipo);
+		tipo.agregarItem(item);
 		items.put(item.getCodigo(), item);
     }
     
@@ -170,12 +171,14 @@ public class Controladora {
         verificarTipoExistente(idTipo);
     	
     	Item item = items.get(codigo);
-        TipoItem tipo = tipos.get(idTipo);
-        if (item != null && tipo != null) {
-            item.setNombre(nombre);
-            item.setDescripcion(descripcion);
-            item.setTipo(tipo);
-        }
+    	TipoItem tipoViejo = item.getTipo();
+        TipoItem tipoNuevo = tipos.get(idTipo);
+        tipoViejo.eliminarItem(item);
+        tipoNuevo.agregarItem(item);
+        
+        item.setNombre(nombre);
+        item.setDescripcion(descripcion);
+        item.setTipo(tipoNuevo);
     }
     
     public void borrarItem(int codigo) throws Exception {
@@ -183,9 +186,14 @@ public class Controladora {
         verificarItemDisponible(codigo);
     	
     	Item item = items.get(codigo);
-        if (item != null && !item.isPrestado()) {
-            items.remove(codigo);
-        }
+    	TipoItem tipo = item.getTipo();
+    	tipo.eliminarItem(item);
+    	
+    	for (Categoria c : item.getCategorias()) {
+    		c.eliminarItem(item);
+    	}
+        items.remove(codigo);
+                
     }
     
     public Item obtenerItem(int codigo) throws Exception {
@@ -220,8 +228,8 @@ public class Controladora {
     	
     	Item item = items.get(codigoItem);
         Categoria categoria = categorias.get(idCategoria);
-        item.agregarCategoria(categoria);
-        
+        item.agregarCategoria(categoria);		//agrega categoria al item
+        categoria.agregarItem(item);           //agrega el item a esa categoria(lista)
     }
     
     public void eliminarCategoriaDeItem(int codigoItem, int idCategoria) throws Exception {
@@ -230,9 +238,8 @@ public class Controladora {
     	
     	Item item = items.get(codigoItem);
         Categoria categoria = categorias.get(idCategoria);
-        if (item != null && categoria != null) {
-            item.eliminarCategoria(categoria);
-        }
+        item.eliminarCategoria(categoria);
+        categoria.eliminarItem(item);           
     }
     
     public List<Item> obtenerItemsPorCategoria(int idCategoria) throws Exception {
@@ -281,13 +288,13 @@ public class Controladora {
         verificarTipoNoBorrable(id);
     	
         TipoItem generico = obtenerTipoGenerico();
-        for (Item item : items.values()) {
-            if (item.getTipo().getId() == id) {
-                item.setTipo(generico);
-            }
+        TipoItem tipo = tipos.get(id);
+        
+        for (Item item : tipo.getItems()) {
+            item.setTipo(generico);
+            generico.agregarItem(item);
         }
         tipos.remove(id);
-        
     }
     
     public TipoItem obtenerTipo(int id) throws Exception {
@@ -328,7 +335,7 @@ public class Controladora {
     	verificarCategoriaExistente(id);
     	
         Categoria categoria = categorias.get(id);
-        for (Item item : items.values()) {
+        for (Item item : categoria.getItems()) {
             item.eliminarCategoria(categoria);
         }
         categorias.remove(id);
@@ -380,6 +387,12 @@ public class Controladora {
         item.setPrestado(false);
         
     }
+    
+    public void retornarItemDePrestamo(int idPrestamo, int codigoItem) throws Exception {
+    	verificarPrestamoExistente(idPrestamo);
+        verificarItemExistente(codigoItem);
+        eliminarItemDePrestamo(idPrestamo, codigoItem);
+    }
 
     public void agregarAlertaAPrestamo(int idPrestamo, String mensaje,
                                         boolean esRecurrente, int intervalo) throws Exception {
@@ -412,6 +425,19 @@ public class Controladora {
         prestamo.getUsuario().eliminarPrestamo(prestamo);
         prestamos.remove(idPrestamo);
         
+    }
+    
+    public void cancelarPrestamoEnCreacion(int idPrestamo) throws Exception {
+        verificarPrestamoExistente(idPrestamo);
+        Prestamo prestamo = prestamos.get(idPrestamo);
+        for (Item item : prestamo.getItems()) {
+            item.setPrestado(false);
+        }
+        if (prestamo.tieneAlerta()) {
+            prestamo.getAlerta().setActiva(false);
+        }
+        prestamo.getUsuario().eliminarPrestamo(prestamo);
+        prestamos.remove(idPrestamo);
     }
 
     public Prestamo obtenerPrestamo(int idPrestamo) throws Exception {
@@ -451,31 +477,95 @@ public class Controladora {
         }
         return pendientes;
     }
+    
+    public List<Prestamo> obtenerListadoPrestamos() {
+        return new ArrayList<>(prestamos.values());
+    }
 
     // Reportes ============================================================
     
-    public List<Usuario> reportePorUsuario() {
+    public String reportePorUsuario() {
+    	StringBuilder sb = new StringBuilder();
+        sb.append("REPORTE POR USUARIO\n");
+        sb.append("___________________\n\n");
     	List<Usuario> lista = new ArrayList<>(usuarios.values());
     	lista.sort(Comparator.comparing(Usuario::getNombre));
-        return lista;
+    	
+    	for (Usuario u : lista) {
+    		sb.append("Nombre: ").append(u.getNombre()).append("\n");
+            sb.append("Teléfono: ").append(u.getTelefono()).append("\n");
+            sb.append("Email: ").append(u.getEmail()).append("\n");
+            
+            if (u.tienePrestamos()) {
+            	sb.append("Préstamos activos:\n");
+                for (Prestamo p : u.getPrestamos()) {
+                    sb.append("  - Préstamo #").append(p.getId()).append(" (").append(p.getFechaInicio()).append(")\n");
+                    for (Item item : p.getItems()) {
+                        sb.append("      * ").append(item.getNombre()).append("\n");
+                    }
+                }
+            } else {
+            	sb.append("Sin préstamos activos.\n");
+            }
+            sb.append("-------------------\n");
+    	}
+    	
+        return sb.toString();
     }
     
-    public List<Item> reportePorItem() {
+    public String reportePorItem() throws Exception {
+    	StringBuilder sb = new StringBuilder();
+        sb.append("REPORTE POR ÍTEM\n");
+        sb.append("___________________\n\n");
     	List<Item> lista = new ArrayList<>(items.values());
         lista.sort(Comparator.comparing(Item::getNombre));
-        return lista;
+        
+        for (Item item : lista) {
+            sb.append("Nombre: ").append(item.getNombre()).append("\n");
+            sb.append("Código: ").append(item.getCodigo()).append("\n");
+            sb.append("Descripción: ").append(item.getDescripcion()).append("\n");
+            sb.append("Tipo: ").append(item.getTipo().getNombre()).append("\n");
+            if (item.isPrestado()) {
+                Prestamo p = obtenerPrestamoDeItem(item.getCodigo());
+                if (p != null) {
+                    sb.append("Estado: Prestado a ").append(p.getUsuario().getNombre()).append("\n");
+                }
+            } else {
+                sb.append("Estado: Disponible\n");
+            }
+            sb.append("-------------------\n");
+        }
+        
+        
+        return sb.toString();
     }
 
-    public List<Categoria> reportePorCategoria() {
-    	List<Categoria> lista = new ArrayList<>(categorias.values());
-        lista.sort(Comparator.comparing(Categoria::getNombre));
-        return lista;
-    }
-
-    public List<TipoItem> reportePorTipo() {
+    public String reportePorTipo() {
+    	StringBuilder sb = new StringBuilder();
+        sb.append("REPORTE POR TIPO\n");
+        sb.append("___________________\n\n");
     	List<TipoItem> lista = new ArrayList<>(tipos.values());
         lista.sort(Comparator.comparing(TipoItem::getNombre));
-        return lista;
+        
+        for (TipoItem tipo : lista) {
+            sb.append("Tipo: ").append(tipo.getNombre()).append("\n");
+            sb.append("Descripción: ").append(tipo.getDescripcion()).append("\n");
+            List<Item> itemsTipo = new ArrayList<>(tipo.getItems());
+            itemsTipo.sort(Comparator.comparing(Item::getNombre));
+            
+            if (itemsTipo.isEmpty()) {
+                sb.append("Sin ítems.\n");
+            } else {
+                for (Item item : itemsTipo) {
+                    sb.append("  - ").append(item.getNombre())
+                      .append(item.isPrestado() ? " (prestado)" : " (disponible)")
+                      .append("\n");
+                }
+            }
+            sb.append("-------------------\n");
+        }
+        
+        return sb.toString();
     }
     
     
