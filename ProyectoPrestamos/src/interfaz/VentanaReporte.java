@@ -17,6 +17,7 @@ public class VentanaReporte extends JDialog {
 	private final JPanel contentPanel = new JPanel();
 
 	public VentanaReporte(String titulo, String contenidoReporte) {
+		setResizable(false);
 		setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 		setModal(true);
 		setTitle(titulo);

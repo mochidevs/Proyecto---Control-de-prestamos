@@ -1,6 +1,8 @@
 package control;
 
 import logica.*;
+
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -499,7 +501,7 @@ public class Controladora {
             if (u.tienePrestamos()) {
             	sb.append("Préstamos activos:\n");
                 for (Prestamo p : u.getPrestamos()) {
-                    sb.append("  - Préstamo #").append(p.getId()).append(" (").append(p.getFechaInicio()).append(")\n");
+                    sb.append("  - Préstamo #").append(p.getId()).append(" (").append(p.getFechaInicio().format(formato)).append(")\n");
                     for (Item item : p.getItems()) {
                         sb.append("      * ").append(item.getNombre()).append("\n");
                     }
@@ -557,9 +559,7 @@ public class Controladora {
                 sb.append("Sin ítems.\n");
             } else {
                 for (Item item : itemsTipo) {
-                    sb.append("  - ").append(item.getNombre())
-                      .append(item.isPrestado() ? " (prestado)" : " (disponible)")
-                      .append("\n");
+                    sb.append("  - ").append(item.getNombre()).append(item.isPrestado() ? " (prestado)" : " (disponible)").append("\n");
                 }
             }
             sb.append("-------------------\n");
@@ -568,5 +568,31 @@ public class Controladora {
         return sb.toString();
     }
     
+    public String reportePorCategoria() {
+    	StringBuilder sb = new StringBuilder();
+        sb.append("REPORTE POR CATEGORÍA\n");
+        sb.append("___________________\n\n");
+        List<Categoria> lista = new ArrayList<>(categorias.values());
+        lista.sort(Comparator.comparing(Categoria::getNombre));
+        
+        for (Categoria cat : lista) {
+        	sb.append("Categoría: ").append(cat.getNombre()).append("\n");
+            sb.append("Descripción: ").append(cat.getDescripcion()).append("\n");
+            List<Item> itemsCat = new ArrayList<>(cat.getItems());
+            itemsCat.sort(Comparator.comparing(Item::getNombre));
+            
+            if (itemsCat.isEmpty()) {
+            	sb.append("Sin ítems.\n");
+            } else {
+            	for (Item item : itemsCat) {
+            		sb.append("  - ").append(item.getNombre()).append(item.isPrestado() ? " (prestado)" : " (disponible)").append("\n");
+            	}
+            }
+            sb.append("-------------------\n");
+        }
+        return sb.toString();
+    }
+
+    private static final DateTimeFormatter formato = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
     
 }

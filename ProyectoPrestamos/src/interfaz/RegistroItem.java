@@ -26,6 +26,7 @@ import javax.swing.JList;
 import javax.swing.JOptionPane;
 
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 import java.awt.event.ActionEvent;
 
 public class RegistroItem extends JDialog {
@@ -34,16 +35,18 @@ public class RegistroItem extends JDialog {
 	private final JPanel contentPanel = new JPanel();
 
 	private Controladora control = Controladora.getInstance();
-	private JTextArea txtDescrip;
 	private JTextField txtNombre;
+	private JTextArea txtDescrip;
 	private JComboBox<TipoItem> selectTipo;
 	private Item itemEdit;
 	private DefaultListModel<Categoria> modeloCategorias;
 	private JList<Categoria> listCategorias;
 
 	public RegistroItem() {
+		setResizable(false);
+		setModal(true);
 		setTitle("Nuevo ítem");
-		setBounds(100, 100, 250, 407);
+		setBounds(100, 100, 255, 407);
 		getContentPane().setLayout(new BorderLayout());
 		contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
 		getContentPane().add(contentPanel, BorderLayout.CENTER);
@@ -70,7 +73,7 @@ public class RegistroItem extends JDialog {
 		scrollPane.setBounds(10, 69, 209, 66);
 		contentPanel.add(scrollPane);
 		
-		JTextArea txtDescrip = new JTextArea();
+		txtDescrip = new JTextArea();
 		txtDescrip.setFont(new Font("Tahoma", Font.PLAIN, 11));
 		txtDescrip.setLineWrap(true);
 		txtDescrip.setTabSize(4);
@@ -80,7 +83,7 @@ public class RegistroItem extends JDialog {
 		lblTipo.setBounds(10, 141, 34, 14);
 		contentPanel.add(lblTipo);
 		
-		JComboBox<TipoItem> selectTipo = new JComboBox<>();
+		selectTipo = new JComboBox<>();
 		selectTipo.setBounds(10, 156, 209, 22);
 		contentPanel.add(selectTipo);
 		
@@ -89,7 +92,7 @@ public class RegistroItem extends JDialog {
 		}		
 		
 		JLabel lblCateg = new JLabel("Categorías (selección múltiple)");
-		lblCateg.setBounds(10, 185, 159, 14);
+		lblCateg.setBounds(10, 185, 209, 14);
 		contentPanel.add(lblCateg);
 		
 		modeloCategorias = new DefaultListModel<>();
@@ -97,34 +100,36 @@ public class RegistroItem extends JDialog {
 			modeloCategorias.addElement(categoria);
 		}
 		
+		JScrollPane scrollCategorias = new JScrollPane();
+		scrollCategorias.setBounds(10, 207, 209, 117);
+		contentPanel.add(scrollCategorias);
 		
 		listCategorias = new JList<>(modeloCategorias);
+		scrollCategorias.setViewportView(listCategorias);
 		listCategorias.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-		listCategorias.setBounds(10, 207, 209, 117);
-		contentPanel.add(listCategorias);
 		
 		JPanel buttonPane = new JPanel();
 		buttonPane.setLayout(new FlowLayout(FlowLayout.RIGHT));
 		getContentPane().add(buttonPane, BorderLayout.SOUTH);
 		{
-			JButton btnCancelIt = new JButton("Cancelar");
-			btnCancelIt.addActionListener(new ActionListener() {
+			JButton btnCancel = new JButton("Cancelar");
+			btnCancel.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					dispose();
 				}
 			});
 			
-			buttonPane.add(btnCancelIt);
+			buttonPane.add(btnCancel);
 		}
 		
-		JButton btnGuardarIt = new JButton("Guardar");
-		btnGuardarIt.addActionListener(new ActionListener() {
+		JButton btnGuardar = new JButton("Guardar");
+		btnGuardar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				guardar();
 			}
 		});
-		buttonPane.add(btnGuardarIt);
-		getRootPane().setDefaultButton(btnGuardarIt);
+		buttonPane.add(btnGuardar);
+		getRootPane().setDefaultButton(btnGuardar);
 		
 	}
 	
@@ -165,18 +170,16 @@ public class RegistroItem extends JDialog {
 				control.actualizarItem(itemEdit.getCodigo(), nombre, descripcion, tipoSeleccionado.getId());
 				item = itemEdit;
 			
-				for (Categoria c : new java.util.ArrayList<>(item.getCategorias())) {
+				for (Categoria c : new ArrayList<>(item.getCategorias())) {
 					control.eliminarCategoriaDeItem(item.getCodigo(), c.getId());
 				}
 			}
 			for (Categoria c : listCategorias.getSelectedValuesList()) {
 				control.agregarCategoriaAItem(item.getCodigo(), c.getId());
 			}
-
 			dispose();
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(this, e.getMessage(),
-				"Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(this, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
 		}
 		
 	}

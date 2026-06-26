@@ -48,4 +48,7 @@ public class Categoria {
     	items.remove(item);
     }
     
+    public String toString() {
+    	return nombre;
+    }
 }

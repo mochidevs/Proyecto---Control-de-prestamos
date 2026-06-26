@@ -27,6 +27,7 @@ public class RegistroPersona extends JDialog {
 	private Usuario personaEdit;
 
 	public RegistroPersona() {
+		setResizable(false);
 		setModal(true);
 		setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 		setTitle("Nueva persona");

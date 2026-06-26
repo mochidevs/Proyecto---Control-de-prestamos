@@ -1,36 +1,37 @@
 package interfaz;
 
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
-import javax.swing.border.EmptyBorder;
-
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JPanel;
+import javax.swing.border.EmptyBorder;
+
 import control.Controladora;
-import logica.TipoItem;
+import logica.Categoria;
+
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JTextField;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 
-public class RegistroTipo extends JDialog {
+public class RegistroCategoria extends JDialog {
 
 	private static final long serialVersionUID = 1L;
 	private final JPanel contentPanel = new JPanel();
 	private JTextField txtNombre;
-	private JTextField txtDescripcion;
-	
+	private JTextField txtDescrip;
+
 	private Controladora control = Controladora.getInstance();
-	private TipoItem tipoEdit;
+	private Categoria catEdit;
 	
-	public RegistroTipo() {
+	public RegistroCategoria() {
+		setResizable(false);
 		setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 		setModal(true);
-		setTitle("Nuevo tipo");
-		setBounds(100, 100, 284, 185);
+		setBounds(100, 100, 279, 196);
 		getContentPane().setLayout(new BorderLayout());
 		contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
 		getContentPane().add(contentPanel, BorderLayout.CENTER);
@@ -39,33 +40,38 @@ public class RegistroTipo extends JDialog {
 		JLabel lblNombre = new JLabel("Nombre");
 		lblNombre.setBounds(10, 11, 46, 14);
 		contentPanel.add(lblNombre);
-
+	
+	
 		txtNombre = new JTextField();
-		txtNombre.setBounds(10, 28, 245, 20);
-		contentPanel.add(txtNombre);
 		txtNombre.setColumns(10);
-		
+		txtNombre.setBounds(10, 29, 245, 20);
+		contentPanel.add(txtNombre);
+	
+	
 		JLabel lblDescripcion = new JLabel("Descripción");
-		lblDescripcion.setBounds(10, 59, 73, 14);
+		lblDescripcion.setBounds(10, 60, 73, 14);
 		contentPanel.add(lblDescripcion);
-
-		txtDescripcion = new JTextField();
-		txtDescripcion.setColumns(10);
-		txtDescripcion.setBounds(10, 75, 245, 20);
-		contentPanel.add(txtDescripcion);
+	
+	
+		txtDescrip = new JTextField();
+		txtDescrip.setColumns(10);
+		txtDescrip.setBounds(10, 78, 245, 20);
+		contentPanel.add(txtDescrip);
+		
 		
 		JPanel buttonPane = new JPanel();
 		buttonPane.setLayout(new FlowLayout(FlowLayout.RIGHT));
 		getContentPane().add(buttonPane, BorderLayout.SOUTH);
-
+		
 		JButton btnCancel = new JButton("Cancelar");
 		btnCancel.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-			dispose();
+				dispose();
 			}
 		});
 		buttonPane.add(btnCancel);
-
+	
+	
 		JButton btnGuardar = new JButton("Guardar");
 		btnGuardar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -75,28 +81,27 @@ public class RegistroTipo extends JDialog {
 		buttonPane.add(btnGuardar);
 		getRootPane().setDefaultButton(btnGuardar);
 	}
-	
-	public void cargarDatosTipo(TipoItem tipo) {
-		this.tipoEdit = tipo;
-		setTitle("Modificar tipo");
-		txtNombre.setText(tipo.getNombre());
-		txtDescripcion.setText(tipo.getDescripcion());
+
+	public void cargarDatosCategs(Categoria categoria) {
+		this.catEdit = categoria;
+		setTitle("Modificar categoría");
+		txtNombre.setText(categoria.getNombre());
+		txtDescrip.setText(categoria.getDescripcion());
 	}
 	
 	private void guardar() {
 		String nombre = txtNombre.getText().trim();
-		String descripcion = txtDescripcion.getText().trim();
-
+		String descripcion = txtDescrip.getText().trim();
+		
 		if (nombre.isEmpty()) {
 			JOptionPane.showMessageDialog(this, "El nombre es obligatorio.", "Error", JOptionPane.ERROR_MESSAGE);
 			return;
 		}
-
 		try {
-			if (tipoEdit == null) {
-				control.crearTipo(nombre, descripcion);
+			if (catEdit == null) {
+				control.crearCategoria(nombre, descripcion);
 			} else {
-				control.actualizarTipo(tipoEdit.getId(), nombre, descripcion);
+				control.actualizarCategoria(catEdit.getId(), nombre, descripcion);
 			}
 			dispose();
 		} catch (Exception e) {

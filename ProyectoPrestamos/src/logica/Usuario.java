@@ -61,4 +61,8 @@ public class Usuario {
 	public boolean tienePrestamos() {
 		return !prestamos.isEmpty();
 	}
+	
+	public String toString() {
+		return nombre;
+	}
 }

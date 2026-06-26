@@ -42,9 +42,10 @@ public class CrearPrestamo extends JDialog {
 	private JTextArea areaItemsPrestamo;
 
 	public CrearPrestamo() {
+		setResizable(false);
 		setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 		setModal(true);
-		setBounds(100, 100, 247, 394);
+		setBounds(100, 100, 268, 394);
 		contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
 		getContentPane().setLayout(new BorderLayout());
 		getContentPane().add(contentPanel, BorderLayout.CENTER);
@@ -55,7 +56,7 @@ public class CrearPrestamo extends JDialog {
 		contentPanel.add(lblUsuario);
 		
 		selectUsuario = new JComboBox<>();
-		selectUsuario.setBounds(18, 29, 170, 22);
+		selectUsuario.setBounds(18, 29, 205, 22);
 		contentPanel.add(selectUsuario);
 		for (Usuario u : control.obtenerListadoUsuarios()) {
 			selectUsuario.addItem(u);
@@ -86,22 +87,17 @@ public class CrearPrestamo extends JDialog {
 		contentPanel.add(btnQuitarItem);
 		
 		JLabel lblAlerta = new JLabel("Mensaje de alerta (opcional)");
-		lblAlerta.setBounds(18, 191, 136, 14);
+		lblAlerta.setBounds(18, 191, 205, 14);
 		contentPanel.add(lblAlerta);
 		
 		txtMensajeAlerta = new JTextField();
-		txtMensajeAlerta.setBounds(10, 216, 205, 20);
+		txtMensajeAlerta.setBounds(10, 216, 218, 20);
 		contentPanel.add(txtMensajeAlerta);
 		txtMensajeAlerta.setColumns(10);
 		
 		chkRecurrente = new JCheckBox("¿Recurrente?");
 		chkRecurrente.setBounds(18, 244, 89, 23);
 		contentPanel.add(chkRecurrente);
-		chkRecurrente.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				spinnerIntervalo.setEnabled(chkRecurrente.isSelected());
-			}
-		});
 		
 		JLabel lblIntervalo = new JLabel("Intervalo (segundos)");
 		lblIntervalo.setBounds(104, 277, 101, 14);
@@ -112,10 +108,10 @@ public class CrearPrestamo extends JDialog {
 		contentPanel.add(spinnerIntervalo);
 		
 		JScrollPane scrollItems = new JScrollPane();
-		scrollItems.setBounds(18, 79, 187, 71);
+		scrollItems.setBounds(18, 79, 205, 71);
 		contentPanel.add(scrollItems);
 		
-		JTextArea areaItemsPrestamo = new JTextArea();
+		areaItemsPrestamo = new JTextArea();
 		areaItemsPrestamo.setEditable(false);
 		scrollItems.setViewportView(areaItemsPrestamo);
 		
@@ -176,9 +172,7 @@ public class CrearPrestamo extends JDialog {
 	    }
 
 	    List<Item> items = prestamoEnCreacion.getItems();
-	    Item seleccionado = (Item) JOptionPane.showInputDialog(this, "Seleccione el ítem a quitar:", "Quitar ítem", JOptionPane.PLAIN_MESSAGE, null,
-	        items.toArray(), items.get(0)
-	    );
+	    Item seleccionado = (Item) JOptionPane.showInputDialog(this, "Seleccione el ítem a quitar:", "Quitar ítem", JOptionPane.PLAIN_MESSAGE, null, items.toArray(), items.get(0));
 
 	    if (seleccionado != null) {
 	        try {

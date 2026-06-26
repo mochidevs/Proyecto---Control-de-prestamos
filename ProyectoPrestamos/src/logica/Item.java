@@ -24,9 +24,6 @@ public class Item {
 		return nombre;
 	}
 	
-	public String toString() {
-		return nombre;
-	}
 
 	public void setNombre(String nombre) {
 		this.nombre = nombre;
@@ -80,4 +77,7 @@ public class Item {
         return categorias.contains(categoria);
     }
     
+    public String toString() {
+    	return nombre;
+    }
 }
